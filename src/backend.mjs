@@ -4,6 +4,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { Workspace, sourcePath } from './workspace.mjs';
+import { packageRoot } from './config.mjs';
 export { sourcePath } from './workspace.mjs';
 
 const execute = promisify(execFile);
@@ -90,8 +91,13 @@ export class GenioBackend {
       return await readJson(path.join(this.root, 'outputs', 'android-camera', 'build', 'build.json'));
     } finally { this.busy = false; }
   }
-  async startValidation({ suite = 'controls', cameraId = '0' } = {}) {
-    if (!['capture', 'controls', 'inventory', 'raw', 'nr'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
+  async startValidation({ suite = 'controls', cameraId = '0', wbCandidates, stillExposureNs } = {}) {
+    if (!['capture', 'controls', 'inventory', 'raw', 'nr', 'wb', 'jpeg'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
+    if (wbCandidates !== undefined && (suite !== 'wb' || !Array.isArray(wbCandidates) || wbCandidates.length < 1 || wbCandidates.length > 12
+        || wbCandidates.some(g => !Array.isArray(g) || g.length !== 4 || g.some(v => !Number.isFinite(v) || v < 1 || v > 4))))
+      throw new Error('WB candidates require wb suite and 1..12 R/Ge/Go/B vectors within [1,4]; device readback determines acceptance');
+    if(stillExposureNs!==undefined && (!['raw','jpeg'].includes(suite) || !Number.isSafeInteger(stillExposureNs) || stillExposureNs<1 || stillExposureNs>400000000))
+      throw new Error('Still exposure requires raw/jpeg suite and a positive bounded integer; sensor range is checked on device');
     if (this.busy) throw new Error('A camera build or validation is already running');
     this.busy = true;
     const id = `camera-${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`;
@@ -102,6 +108,8 @@ export class GenioBackend {
     try {
       await fs.access(path.join(this.root, 'outputs', 'android-camera', 'build', 'build.json'));
       await atomicJson(jobFile, job);
+      const wbPlanFile = wbCandidates === undefined ? null : path.join(jobDir, `${id}-wb-plan.json`);
+      if (wbPlanFile) await atomicJson(wbPlanFile, wbCandidates);
       const logHandle = await fs.open(path.join(jobDir, `${id}.log`), 'a');
       try {
         child = spawn('powershell.exe', [
@@ -109,6 +117,8 @@ export class GenioBackend {
           path.join(this.root, 'tools', 'android_camera', 'run.ps1'),
           '-SkipBuild', ...(this.serial ? ['-Serial', this.serial] : []), '-SdkRoot', this.sdkRoot,
           '-Suite', suite, '-CameraId', cameraId, '-RunId', id,
+          ...(wbPlanFile ? ['-WbPlanFile', wbPlanFile] : []),
+          ...(stillExposureNs===undefined?[]:['-StillExposureNs',String(stillExposureNs)]),
         ], { cwd: this.root, windowsHide: true, env: childEnvironment(), stdio: ['ignore', logHandle.fd, logHandle.fd] });
       } finally { await logHandle.close(); }
       this.jobs.set(id, { job, child });
@@ -146,6 +156,18 @@ export class GenioBackend {
     } catch (error) { if (error.code !== 'ENOENT') job.report_read_error = error.message; }
     return job;
   }
+  async evaluateWb(id, roi, neutralConfirmed = false) {
+    validateId(id);
+    if (this.busy) throw new Error('Wait for capture completion before evaluating WB');
+    if (!Array.isArray(roi) || roi.length !== 4 || roi.some(v => !Number.isFinite(v) || v < 0 || v > 1)
+        || roi[0] >= roi[2] || roi[1] >= roi[3]) throw new Error('Invalid normalized ROI');
+    const directory = path.join(this.root, 'outputs', 'camera-runs', id);
+    await this.command(process.execPath, [path.join(packageRoot, 'tools', 'tuning', 'analyze.mjs'), directory,
+      `--roi=${roi.join(',')}`, ...(neutralConfirmed ? ['--neutral-confirmed'] : [])], 60000);
+    const analysis = await readJson(path.join(directory, 'tuning', 'analysis.json'));
+    return { analysis, comparison_html: path.join(directory, 'tuning', 'comparison.html'),
+      candidate_profile: analysis.selected ? await readJson(path.join(directory, 'tuning', 'candidate-profile.json')) : null };
+  }
   async getReport(id, full = false) {
     validateId(id);
     const directory = path.join(this.root, 'outputs', 'camera-runs', id);
@@ -155,6 +177,9 @@ export class GenioBackend {
       directory, status: report.status, camera_id: report.camera_id, width: report.width, height: report.height,
       controls_readback_match: report.controls_readback_match, error: report.error, limitations: report.limitations,
       suite: report.suite, raw: report.raw, raw_yuv_timestamps_match: report.raw_yuv_timestamps_match,
+      restore_status: report.restore_status, camera_session_closed: report.camera_session_closed,
+      photo_width: report.photo_width, photo_height: report.photo_height,
+      manual_still_readback_match: report.manual_still_readback_match,
       inventory_summary: report.inventory && { characteristics: Object.keys(report.inventory.characteristics).length,
         request_keys: report.inventory.request_keys.length, result_keys: report.inventory.result_keys.length,
         session_keys: report.inventory.session_keys.length, output_formats: report.inventory.output_formats },
@@ -164,6 +189,7 @@ export class GenioBackend {
         first_frame: c.frames?.[0] && {
           exposure_time_ns: c.frames[0].exposure_time_ns, iso: c.frames[0].iso,
           nr_mode: c.frames[0].nr_mode, vendor_3dnr_mode: c.frames[0].vendor_3dnr_mode, tone_mode: c.frames[0].tone_mode,
+          wb_gains: c.frames[0].wb_gains, awb_mode: c.frames[0].awb_mode, wb_readback_match: c.frames[0].wb_readback_match,
           luma_mean: c.frames[0].luma_mean, luma_stddev: c.frames[0].luma_stddev,
           tone_curve_max_abs_error: c.frames[0].tone_curve_max_abs_error,
           image_timestamp_ns: c.frames[0].image_timestamp_ns, sensor_timestamp_ns: c.frames[0].sensor_timestamp_ns,

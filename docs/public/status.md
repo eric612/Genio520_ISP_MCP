@@ -1,6 +1,6 @@
 # Validation status — 2026-10-21
 
-Version 0.2.0 provides a generic MCP bridge with 11 tools. Standard Node.js 22 and the MCP SDK are the only server runtime requirements; camera operations additionally use locally installed Android/JDK tools. No indexer, vendor BSP, shared model key or board credentials are included.
+Version 0.3.0 provides a generic MCP bridge with 12 tools, including WB evaluation. Standard Node.js 22 and the MCP SDK are the only server runtime requirements; camera operations additionally use locally installed Android/JDK tools. Python RAW inspection and scrcpy preview are optional. No indexer, vendor BSP, shared model key or board credentials are included.
 
 Verified locally:
 
@@ -17,3 +17,7 @@ The board already had the diagnostic application installed. Its existing local d
 The tested source checkout is a new Git history. Internal project documents, official photographs, private MCP settings and SDK binaries are excluded.
 
 Browser account connections, public OAuth hosting, multi-user device isolation and sustained ISP performance are not part of this generic MCP acceptance. Browser-specific setup remains a separate optional step. This bridge does not include WDR/Defog/TNR algorithm implementations.
+
+The simple-tuning extension passed 13 local tests (including real stdio/HTTP clients, color-range/UV fixtures and rejection of recommendations without reference, restoration or repeatability). Board WB default/custom probes passed 13 cases/39 matched frames; native JPEG 3840×2160 and manual 8 ms RAW/ISO readback also passed. The inventory/RAW/7-case controls/NR matrix regression passed after the camera changes.
+
+The user then identified and removed a blue protective film. All film-on WB profiles were superseded. A film-off WB run was correctly left diagnostic-only when its A/A' brightness check failed; no retained color calibration is claimed. Before mechanical focus adjustment, RAW and independently sampled Bayer green planes showed soft detail at both approximately 20 ms and 8 ms. After the user adjusted focus, a fresh RAW showed visibly improved facial, radial-pattern and surface detail in development and non-interpolated green samples. The framing changed, so this is qualitative evidence supporting a focus contribution, not an MTF calibration. Preview was stopped as requested; post-focus WB validation remains pending. See [simple tuning and focus inspection](simple-tuning.md).

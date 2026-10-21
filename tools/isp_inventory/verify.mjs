@@ -18,9 +18,12 @@ try {
   await client.connect(transport);
   evidence.target = await call('get_target_info');
   await call('build_camera_probe');
-  const suites = process.argv.includes('--nr-only') ? ['nr'] : ['inventory', 'raw', ...(process.argv.includes('--controls') ? ['controls'] : []), ...(process.argv.includes('--nr') ? ['nr'] : [])];
+  const suites = process.argv.includes('--wb-only') ? ['wb'] : process.argv.includes('--nr-only') ? ['nr'] : ['inventory', 'raw', ...(process.argv.includes('--controls') ? ['controls'] : []), ...(process.argv.includes('--nr') ? ['nr'] : [])];
   for (const suite of suites) {
-    const job = await call('run_camera_validation', { suite });
+    const wbPlanPath = process.argv.find(v => v.startsWith('--wb-plan='))?.slice(10);
+    const parameters = { suite };
+    if (wbPlanPath && suite === 'wb') parameters.wb_candidates = JSON.parse(await fs.readFile(wbPlanPath, 'utf8'));
+    const job = await call('run_camera_validation', parameters);
     console.log(`${suite}: JOB=${job.id}`);
     let status, previous;
     const deadline = Date.now() + 180000;
@@ -34,6 +37,12 @@ try {
     try { report = await call('get_report', { run_id: job.run_id }); }
     catch (error) { report = { status: 'NO_REPORT', error: error.message }; }
     evidence.runs.push({ suite, job: status, report });
+    const roiText=process.argv.find(v=>v.startsWith('--wb-roi='))?.slice(9);
+    if(suite==='wb' && roiText && status.status==='succeeded') {
+      const evaluated=await call('evaluate_wb',{run_id:job.run_id,roi:roiText.split(',').map(Number),neutral_reference_confirmed:process.argv.includes('--neutral-confirmed')});
+      evidence.runs[evidence.runs.length-1].evaluation=evaluated;
+      console.log(`wb: evaluation=${evaluated.analysis.status}, selected=${evaluated.analysis.selected||'none'}`);
+    }
     if (status.status !== 'succeeded' || report.status !== 'PASS') {
       evidence.failed = true; console.log(`${suite}: FAIL ${report.error || status.exit_code}`);
     } else if (suite === 'raw') console.log(`raw: ${report.raw.width}x${report.raw.height}, timestamps=${report.raw_yuv_timestamps_match}, DNG=${report.raw.dng_status}`);

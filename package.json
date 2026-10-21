@@ -1,6 +1,6 @@
 {
   "name": "genio-dev-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -17,6 +17,8 @@
     "tools/android_camera/",
     "tools/android_probe/",
     "tools/isp_inventory/",
+    "tools/tuning/",
+    "tools/live_preview/",
     "tools/mcp_smoke.mjs",
     "examples/",
     "docs/public/",

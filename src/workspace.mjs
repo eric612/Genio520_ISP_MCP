@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 
 const ROOT_FILES = new Set(['README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'package.json', 'package-lock.json', '.gitignore']);
 const DIRECTORIES = new Set(['src', 'tools', 'tests', 'docs', 'examples', 'bin']);
-const EXTENSIONS = new Set(['.mjs', '.js', '.ts', '.java', '.xml', '.ps1', '.c', '.h', '.md', '.json']);
+const EXTENSIONS = new Set(['.mjs', '.js', '.ts', '.java', '.xml', '.ps1', '.py', '.c', '.h', '.md', '.json']);
 const MAX_BYTES = 1024 * 1024;
 export function sourcePath(root, relative) {
   if (typeof relative !== 'string' || !relative || path.isAbsolute(relative)

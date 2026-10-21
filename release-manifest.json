@@ -1,52 +1,8 @@
 {
   "files": [
     {
-      "path": ".gitignore",
-      "sha256": "a637fe3c677fde58674c6618c6237360b80b5aa37b005d224f1047d444f0b1df"
-    },
-    {
-      "path": "LICENSE",
-      "sha256": "3e6b71f45b817ec9b18a16bc4e3d77d6444eaded68447772ac23a2b72535f97b"
-    },
-    {
-      "path": "README.md",
-      "sha256": "a58cbbfa37ff1c4931f5cd2b76b01d806ffa7c01fc8c39e9fe6d2cb4b38611c4"
-    },
-    {
-      "path": "THIRD_PARTY_NOTICES.md",
-      "sha256": "abd56f2b70883e572a737ceb37f51db720a697a98449adb76622cd804d6de6a2"
-    },
-    {
-      "path": "bin/genio-dev-mcp.mjs",
-      "sha256": "1b81bfb23378e462db41d337d7d553c854ce206770b4263ee9a9f08eb1282117"
-    },
-    {
-      "path": "docs/public/browser-connection.md",
-      "sha256": "6a157e1540623db590b857604dec654df24f9a1587bc1dc6e081bd73c2f03663"
-    },
-    {
-      "path": "docs/public/isp-inventory.md",
-      "sha256": "6c87b3f60d98f1a287e27f5099629a4f5dc9acff642b45012ebdcf7a2f233d69"
-    },
-    {
-      "path": "docs/public/status.md",
-      "sha256": "268b9daa48d5ad3e3b0693ff9d27d0294fc34f4afb3f664c16ba2a9344a76cfa"
-    },
-    {
-      "path": "examples/mcp.local.json",
-      "sha256": "0b2371913c019466901e2a3e20a0ec68103652f961a962b8b2a642e4279a548a"
-    },
-    {
-      "path": "package-lock.json",
-      "sha256": "e4a32b3cc2a9a2b903cc4095c7208391ffb836ddf0dcc8cf5b8e9073666173a5"
-    },
-    {
-      "path": "package.json",
-      "sha256": "c20cf8acb611198a3199f74bffe638315ef97219bb58e7622f47d83f59d81b53"
-    },
-    {
       "path": "src/backend.mjs",
-      "sha256": "cf172aaea780267d943f823bfee02e9b8fae9a0eda1fd68d4daa7f8681affbb6"
+      "sha256": "4917fdfe2d2ba397bd864520ce22fa78b5ca8f3e046e1899d1c2b4c450a2c899"
     },
     {
       "path": "src/config.mjs",
@@ -58,7 +14,7 @@
     },
     {
       "path": "src/server.mjs",
-      "sha256": "54991fae0694a0ea49ff909a63143d7b97575c1a4a6e8261450d365e60a2ab86"
+      "sha256": "5a15c137fcecfc7428ac53a34e6d7906dcb63264a1db93d285725f2558b992b7"
     },
     {
       "path": "src/transport.mjs",
@@ -66,23 +22,55 @@
     },
     {
       "path": "src/workspace.mjs",
-      "sha256": "58f4a1fb0c0e8bd8688fa34f38d3b8e06cb0173d97fae3256fcbf124a634248e"
+      "sha256": "eead90abeaf156ce814840745327e8176e7207cd2bb58277c7b4c658dbe6fba3"
+    },
+    {
+      "path": "bin/genio-dev-mcp.mjs",
+      "sha256": "1b81bfb23378e462db41d337d7d553c854ce206770b4263ee9a9f08eb1282117"
     },
     {
       "path": "tests/backend.test.mjs",
       "sha256": "526a2ab20ab9637d75fee43620077ef478c74f0d93f3d1f0f60c4b48a4f151d9"
     },
     {
+      "path": "tests/color.test.mjs",
+      "sha256": "dc06dad7dcb377b792565833cc70e4b26547aaf030154af2fc5aec42b1f02581"
+    },
+    {
       "path": "tests/mcp.test.mjs",
-      "sha256": "100d138590d137bf915839d02b0dfe09d37a1c657eaf7c9b6d0688a5af6072fa"
+      "sha256": "6485e58ab75143b008f52f554180713c9daf7a279945eae1e989151a02dfaade"
     },
     {
       "path": "tests/temp.mjs",
       "sha256": "08e979c6abd6d07b95cd84719c0f9e95611d942d3224852566d2bb84093135c7"
     },
     {
+      "path": "tests/tuning.test.mjs",
+      "sha256": "56b35b496cc4f31517247aaffdce7495db210733d89b43f0ee75b7eee307b1fb"
+    },
+    {
       "path": "tests/workspace.test.mjs",
       "sha256": "0106843ce11df2e221df144b6c4668734a5664b1d29b06d4e73f80564a503afa"
+    },
+    {
+      "path": "examples/mcp.local.json",
+      "sha256": "0b2371913c019466901e2a3e20a0ec68103652f961a962b8b2a642e4279a548a"
+    },
+    {
+      "path": "docs/public/browser-connection.md",
+      "sha256": "6a157e1540623db590b857604dec654df24f9a1587bc1dc6e081bd73c2f03663"
+    },
+    {
+      "path": "docs/public/isp-inventory.md",
+      "sha256": "6c87b3f60d98f1a287e27f5099629a4f5dc9acff642b45012ebdcf7a2f233d69"
+    },
+    {
+      "path": "docs/public/simple-tuning.md",
+      "sha256": "07ef678a74afe849c43909d1fa485c546fff8e93808a1c0eceac6b052b44995b"
+    },
+    {
+      "path": "docs/public/status.md",
+      "sha256": "17b46817ef58e1f74b5d82086ca9faa28fba969955137a811100bdad67794cbc"
     },
     {
       "path": "tools/android_camera/AndroidManifest.xml",
@@ -94,19 +82,19 @@
     },
     {
       "path": "tools/android_camera/run.ps1",
-      "sha256": "8e8bdf5672ae709bd3961f2c6e9dd54cace79c2e9bf6e724db6728f2e8dfdb27"
+      "sha256": "37c9aca5a98d4722712b5045248791600b98416f1a61eb1bfdc99fd2cc0d389b"
     },
     {
       "path": "tools/android_camera/src/com/genio/cameraprobe/ProbeActivity.java",
-      "sha256": "ea75af2f7b762b285b679940b8d4d731117ca7e8ab30329f9f39dfbab201205a"
-    },
-    {
-      "path": "tools/android_probe/README.md",
-      "sha256": "96ae3f9084d81c92d028f603b80f7a1866b8b7a5e20d8f963380e978911ec5bf"
+      "sha256": "d2b4f391feee7e083a8aece287ffbd84db18fee45f1b7dd67fc2c411c42e81e3"
     },
     {
       "path": "tools/android_probe/probe.c",
       "sha256": "67adb081cae4a5b7516047f3e34fc0ad14dd325faffe0016b87a9fdd3e56d315"
+    },
+    {
+      "path": "tools/android_probe/README.md",
+      "sha256": "96ae3f9084d81c92d028f603b80f7a1866b8b7a5e20d8f963380e978911ec5bf"
     },
     {
       "path": "tools/android_probe/verify.ps1",
@@ -118,7 +106,27 @@
     },
     {
       "path": "tools/isp_inventory/verify.mjs",
-      "sha256": "202e3b44b126df6752567b4a6ddf9ba71a8832ca07e8a1b408c42bec58319668"
+      "sha256": "11da753e4d149603357bc0ec06060f62f9207b3997c88a4c5cdf772db815e5fb"
+    },
+    {
+      "path": "tools/tuning/analyze.mjs",
+      "sha256": "08fd39135fb2ffb7402c62324c7e4fb2f4e1cd09a57159e210b9211e0e795ed4"
+    },
+    {
+      "path": "tools/tuning/color.mjs",
+      "sha256": "e1feddd79f90ff5bb5d0953fe49f8e9dd12657e305b75c06a9858f7450040d3b"
+    },
+    {
+      "path": "tools/tuning/develop_raw.py",
+      "sha256": "8e0527619edb7cd4ddfc98d352ee20b5776c4d139f11a782f2064a25dbede0a1"
+    },
+    {
+      "path": "tools/live_preview/start.ps1",
+      "sha256": "e0bb0a0f76c5d50eb5360a0d0977711da5e8cab8a72bd976d8ff6a6782f3dda3"
+    },
+    {
+      "path": "tools/live_preview/stop.ps1",
+      "sha256": "e57c5cc3c698edd1a87c43deaf3e33574b4c4bfd5e71d98df324b0ce6ebf76a2"
     },
     {
       "path": "tools/mcp_smoke.mjs",
@@ -127,6 +135,30 @@
     {
       "path": "tools/third_party_notices.mjs",
       "sha256": "e25411018fb044b762616533c4c0a5af24b23bd94971a39ecf17f7bd0298f5aa"
+    },
+    {
+      "path": "README.md",
+      "sha256": "801f51f6a0ef85f2120e5376026675160616eb01269ca50b9d6ea4efb4245a90"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "3e6b71f45b817ec9b18a16bc4e3d77d6444eaded68447772ac23a2b72535f97b"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "abd56f2b70883e572a737ceb37f51db720a697a98449adb76622cd804d6de6a2"
+    },
+    {
+      "path": "package.json",
+      "sha256": "a657994f7051e831753b2a66b7fac86d716a9f9ecf9833916cab679977f2b6ce"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "82f9b2a2f722a453426ec7f04a7d3ee4f9876c9a96501cef7f47dda8ca38770b"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "a637fe3c677fde58674c6618c6237360b80b5aa37b005d224f1047d444f0b1df"
     }
   ]
 }

@@ -1,10 +1,12 @@
 param(
     [string]$Serial = $env:GENIO_SERIAL,
-    [ValidateSet('capture','controls','inventory','raw','nr')][string]$Suite = 'controls',
+    [ValidateSet('capture','controls','inventory','raw','nr','wb','jpeg')][string]$Suite = 'controls',
     [ValidatePattern('^[A-Za-z0-9_-]{1,64}$')][string]$RunId = ('camera-' + [guid]::NewGuid().ToString('N').Substring(0,12)),
     [ValidatePattern('^[0-9]+$')][string]$CameraId = '0',
     [string]$SdkRoot = $(if ($env:GENIO_ANDROID_SDK) {$env:GENIO_ANDROID_SDK} elseif ($env:ANDROID_HOME) {$env:ANDROID_HOME} else {"$env:LOCALAPPDATA\Android\Sdk"}),
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [string]$WbPlanFile,
+    [ValidateRange(0,400000000)][long]$StillExposureNs = 0
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -36,7 +38,19 @@ Invoke-Adb -Arguments @('shell','am','force-stop','com.mediatek.camera') | Out-N
 Invoke-Adb -Arguments @('shell','am','force-stop','com.genio.cameraprobe') | Out-Null
 Invoke-Adb -Arguments @('shell','input','keyevent','KEYCODE_WAKEUP') | Out-Null
 Invoke-Adb -Arguments @('shell','wm','dismiss-keyguard') | Out-Null
-Invoke-Adb -Arguments @('shell','am','start','-W','-n','com.genio.cameraprobe/.ProbeActivity','--es','run_id',$RunId,'--es','suite',$Suite,'--es','camera_id',$CameraId) | Out-Null
+$planArguments = @()
+if ($WbPlanFile) {
+    if ($Suite -ne 'wb') {throw 'WB plan requires wb suite'}
+    Copy-Item -LiteralPath $WbPlanFile -Destination (Join-Path $output 'wb-plan.json')
+    Invoke-Adb -Arguments @('shell','mkdir','-p','/sdcard/Android/data/com.genio.cameraprobe/files') | Out-Null
+    Invoke-Adb -Arguments @('push',(Join-Path $output 'wb-plan.json'),"/sdcard/Android/data/com.genio.cameraprobe/files/wb-plan-$RunId.json") | Out-Null
+    $planArguments = @('--ez','wb_plan','true')
+}
+if ($StillExposureNs -gt 0) {
+    if ($Suite -notin @('raw','jpeg')) {throw 'Still exposure requires raw or jpeg suite'}
+    $planArguments += @('--el','still_exposure_ns',[string]$StillExposureNs)
+}
+Invoke-Adb -Arguments (@('shell','am','start','-W','-n','com.genio.cameraprobe/.ProbeActivity','--es','run_id',$RunId,'--es','suite',$Suite,'--es','camera_id',$CameraId) + $planArguments) | Out-Null
 $remote = "/sdcard/Android/data/com.genio.cameraprobe/files/$RunId"
 $timer = [System.Diagnostics.Stopwatch]::StartNew()
 $lastProgress = ''
@@ -68,6 +82,7 @@ $provenance = [ordered]@{
     remote_directory=$remote
 }
 $provenance | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'provenance.json') -Encoding UTF8
+if ($WbPlanFile) { Get-FileHash -LiteralPath (Join-Path $output 'wb-plan.json') -Algorithm SHA256 | Select-Object Algorithm,Hash | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'wb-plan-hash.json') -Encoding UTF8 }
 foreach ($case in $report.cases) {
     foreach ($frame in $case.frames) {
         if ($frame.image_timestamp_ns -ne $frame.sensor_timestamp_ns) {throw 'Image/result timestamp mismatch'}
