@@ -91,7 +91,7 @@ export class GenioBackend {
     } finally { this.busy = false; }
   }
   async startValidation({ suite = 'controls', cameraId = '0' } = {}) {
-    if (!['capture', 'controls'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
+    if (!['capture', 'controls', 'inventory', 'raw', 'nr'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
     if (this.busy) throw new Error('A camera build or validation is already running');
     this.busy = true;
     const id = `camera-${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`;
@@ -154,12 +154,16 @@ export class GenioBackend {
     return {
       directory, status: report.status, camera_id: report.camera_id, width: report.width, height: report.height,
       controls_readback_match: report.controls_readback_match, error: report.error, limitations: report.limitations,
+      suite: report.suite, raw: report.raw, raw_yuv_timestamps_match: report.raw_yuv_timestamps_match,
+      inventory_summary: report.inventory && { characteristics: Object.keys(report.inventory.characteristics).length,
+        request_keys: report.inventory.request_keys.length, result_keys: report.inventory.result_keys.length,
+        session_keys: report.inventory.session_keys.length, output_formats: report.inventory.output_formats },
       cases: (report.cases ?? []).map(c => ({
         name: c.name, requested: c.requested, controls_readback_match: c.requested_controls_readback_match,
         samples: c.frames?.length,
         first_frame: c.frames?.[0] && {
           exposure_time_ns: c.frames[0].exposure_time_ns, iso: c.frames[0].iso,
-          nr_mode: c.frames[0].nr_mode, tone_mode: c.frames[0].tone_mode,
+          nr_mode: c.frames[0].nr_mode, vendor_3dnr_mode: c.frames[0].vendor_3dnr_mode, tone_mode: c.frames[0].tone_mode,
           luma_mean: c.frames[0].luma_mean, luma_stddev: c.frames[0].luma_stddev,
           tone_curve_max_abs_error: c.frames[0].tone_curve_max_abs_error,
           image_timestamp_ns: c.frames[0].image_timestamp_ns, sensor_timestamp_ns: c.frames[0].sensor_timestamp_ns,

@@ -10,6 +10,8 @@ Verified locally:
 - The independent source checkout built and deployed a Camera2 APK through MCP on a Genio 520 running Android 15/API 35.
 - All 7 control cases passed, with 3 timestamp-matched YUV/result frames per case (21 total). Exposure, ISO, NR/tone modes and requested three-channel tone curves passed the implemented readback checks.
 
+The subsequent ISP-inventory extension was also verified locally on the same board: 100 characteristics, 101 request keys, 113 advertised result keys and 17 session keys; 4208×3120 RAW16 plus DNG and timestamp-matched YUV; a 17×17 lens-shading map; and a 5-case/15-frame standard NR/vendor 3DNR control matrix. The original control regression and eight local tests passed again after the extension. These are control/data-access results, not noise-reduction quality or arbitrary internal-stage dump results. See [ISP inventory](isp-inventory.md).
+
 The board already had the diagnostic application installed. Its existing local development keystore was explicitly reused for the update; no signing key is shipped with this repository. Captures, APKs and raw board reports remain local and are not repository content.
 
 The tested source checkout is a new Git history. Internal project documents, official photographs, private MCP settings and SDK binaries are excluded.

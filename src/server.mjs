@@ -20,8 +20,8 @@ function tool(name, description, schema, action, annotations = {}) {
 tool('get_target_info', 'Read Genio Android/ABI/build and ADB status. No system changes.', {}, () => backend.targetInfo(), { readOnlyHint: true });
 tool('get_camera_capabilities', 'Read HAL-advertised camera metadata. Availability is distinct from verified control effects.', {}, () => backend.cameraCapabilities(), { readOnlyHint: true });
 tool('build_camera_probe', 'Build the diagnostic Camera2 APK using the existing local Android SDK/JDK. Returns source and APK hashes.', {}, () => backend.buildCamera());
-tool('run_camera_validation', 'Install the built diagnostic APK and start YUV capture/control validation. Temporarily closes the built-in camera app, wakes the board, grants this diagnostic app CAMERA permission, and returns a job ID. Files are saved per run.', {
-  suite: z.enum(['capture', 'controls']).default('controls'),
+tool('run_camera_validation', 'Install the diagnostic APK and run capture, controls, inventory (metadata/template defaults), raw (matched RAW_SENSOR + YUV, optional DNG), or nr (standard NR/vendor 3DNR readback matrix, not quality assessment). Temporarily closes the built-in camera app, wakes the board, grants this app CAMERA permission, and returns a job ID.', {
+  suite: z.enum(['capture', 'controls', 'inventory', 'raw', 'nr']).default('controls'),
   camera_id: z.string().regex(/^\d+$/).default('0'),
 }, args => backend.startValidation({ suite: args.suite, cameraId: args.camera_id }));
 tool('get_job', 'Read asynchronous build/capture job status.', { job_id: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/) }, args => backend.getJob(args.job_id), { readOnlyHint: true });

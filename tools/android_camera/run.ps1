@@ -1,6 +1,6 @@
 param(
     [string]$Serial = $env:GENIO_SERIAL,
-    [ValidateSet('capture','controls')][string]$Suite = 'controls',
+    [ValidateSet('capture','controls','inventory','raw','nr')][string]$Suite = 'controls',
     [ValidatePattern('^[A-Za-z0-9_-]{1,64}$')][string]$RunId = ('camera-' + [guid]::NewGuid().ToString('N').Substring(0,12)),
     [ValidatePattern('^[0-9]+$')][string]$CameraId = '0',
     [string]$SdkRoot = $(if ($env:GENIO_ANDROID_SDK) {$env:GENIO_ANDROID_SDK} elseif ($env:ANDROID_HOME) {$env:ANDROID_HOME} else {"$env:LOCALAPPDATA\Android\Sdk"}),
@@ -76,6 +76,10 @@ foreach ($case in $report.cases) {
             if ((Get-Item -LiteralPath $rawFile).Length -ne ($report.width * $report.height * 3 / 2)) {throw 'Incorrect downloaded NV21 size'}
         }
     }
+}
+if ($Suite -eq 'raw' -and $report.status -eq 'PASS') {
+    if (-not $report.raw_yuv_timestamps_match -or $report.raw.image_timestamp_ns -ne $report.raw.sensor_timestamp_ns) {throw 'RAW/YUV timestamp mismatch'}
+    if ((Get-Item -LiteralPath (Join-Path $output $report.raw.raw16)).Length -ne $report.raw.raw16_bytes) {throw 'Incorrect downloaded RAW16 size'}
 }
 Write-Output "REPORT=$(Join-Path $output 'report.json')"
 if ($report.status -ne 'PASS') {throw "Camera run finished: $($report.status) $($report.error)"}
