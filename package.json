@@ -1,6 +1,6 @@
 {
   "name": "genio-dev-mcp",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -19,6 +19,7 @@
     "tools/isp_inventory/",
     "tools/tuning/",
     "tools/lowlight/",
+    "tools/algorithm_replay/",
     "tools/live_preview/",
     "tools/mcp_smoke.mjs",
     "examples/",

@@ -14,7 +14,7 @@
     },
     {
       "path": "src/server.mjs",
-      "sha256": "076f1596040031fda14a1c61e041fa4a5d37efe2caec5fea409e078111e29cd6"
+      "sha256": "741380436416dd495ba8b93db353f39d1ae5c79cc2c446c0fb9e1e65e595225c"
     },
     {
       "path": "src/transport.mjs",
@@ -45,6 +45,10 @@
       "sha256": "976752eeb078a304df6fa240b2245f51e1ed19fd0b8b24bd10032ce89fb243d2"
     },
     {
+      "path": "tests/replay.test.mjs",
+      "sha256": "807d1c8359ca8110a7329d6e627027ac1cccf0df14202610c74a0706cc5ecba9"
+    },
+    {
       "path": "tests/temp.mjs",
       "sha256": "08e979c6abd6d07b95cd84719c0f9e95611d942d3224852566d2bb84093135c7"
     },
@@ -59,6 +63,10 @@
     {
       "path": "examples/mcp.local.json",
       "sha256": "0b2371913c019466901e2a3e20a0ec68103652f961a962b8b2a642e4279a548a"
+    },
+    {
+      "path": "docs/public/algorithm-replay.md",
+      "sha256": "90ba0804b6a4e9556023bf804857f64f6a73d8ba184dec9d5010424be257b1ba"
     },
     {
       "path": "docs/public/browser-connection.md",
@@ -78,7 +86,7 @@
     },
     {
       "path": "docs/public/status.md",
-      "sha256": "408415df1df80e24fab753c61e0542cedfdc82934b15d5a3bc56299ada7dec61"
+      "sha256": "8c048c344018f5a1efef17768a266c6790644eced3ac7423acdaae0503332925"
     },
     {
       "path": "tools/android_camera/AndroidManifest.xml",
@@ -157,6 +165,22 @@
       "sha256": "a076dcf2bec67384a6799abcf795efb197a1c9b9cef6274f082286100d7b8439"
     },
     {
+      "path": "tools/algorithm_replay/nv21.py",
+      "sha256": "b7d1fa0bb2e605094168805f11153e6198e1c9b546745da11b4d4df07d1ff33c"
+    },
+    {
+      "path": "tools/algorithm_replay/prepare.mjs",
+      "sha256": "67c09aa613cad1088b5f820706e3c55b767cfa9cf84e82902daf293d04365f8a"
+    },
+    {
+      "path": "tools/algorithm_replay/replay.py",
+      "sha256": "bd18d0cdd3ed905f7663f94eb7591806339e8d2c0dbd9a970f87b1ac01423fe2"
+    },
+    {
+      "path": "tools/algorithm_replay/test_nv21.py",
+      "sha256": "5a38223941b276736ad68fe6dbfa58bb54f0ef42b895494bd7b9b5d5c08bcac8"
+    },
+    {
       "path": "tools/mcp_smoke.mjs",
       "sha256": "faff4f1601207641dd442c4a6319076eae89403776de94fc74ebd10c35bb4fb5"
     },
@@ -166,7 +190,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "f62fe1577bee841be1e1e8fc9e41337f176da9c2ec6c2e6ec4b50c42a4a031a3"
+      "sha256": "f5c1640abe80cba3151505e5aac57e5aa18879c8979f4fd39d1468cf4d881925"
     },
     {
       "path": "LICENSE",
@@ -178,11 +202,11 @@
     },
     {
       "path": "package.json",
-      "sha256": "1ede8c6baaf40380d93b55d7518e34fcf3e846db0718f86f3c3633ed5de86d2d"
+      "sha256": "dcb26bfead65d73496f47d53e68984e2565e02f70390d8c3c0686e0b3d981303"
     },
     {
       "path": "package-lock.json",
-      "sha256": "b3a6390630a1a291b73a959086c98af67959e3bf0ecc3eab18850b205af490f4"
+      "sha256": "210d9c8e1f21eb0136726f315809d36fc9c6391f036f54f73843f1b905e2616e"
     },
     {
       "path": ".gitignore",
