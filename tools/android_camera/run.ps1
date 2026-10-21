@@ -1,6 +1,6 @@
 param(
     [string]$Serial = $env:GENIO_SERIAL,
-    [ValidateSet('capture','controls','inventory','raw','nr','wb','jpeg')][string]$Suite = 'controls',
+    [ValidateSet('capture','controls','inventory','raw','nr','wb','jpeg','nr_sequence')][string]$Suite = 'controls',
     [ValidatePattern('^[A-Za-z0-9_-]{1,64}$')][string]$RunId = ('camera-' + [guid]::NewGuid().ToString('N').Substring(0,12)),
     [ValidatePattern('^[0-9]+$')][string]$CameraId = '0',
     [string]$SdkRoot = $(if ($env:GENIO_ANDROID_SDK) {$env:GENIO_ANDROID_SDK} elseif ($env:ANDROID_HOME) {$env:ANDROID_HOME} else {"$env:LOCALAPPDATA\Android\Sdk"}),
@@ -55,7 +55,8 @@ $remote = "/sdcard/Android/data/com.genio.cameraprobe/files/$RunId"
 $timer = [System.Diagnostics.Stopwatch]::StartNew()
 $lastProgress = ''
 $complete = $false
-while ($timer.Elapsed.TotalSeconds -lt 150) {
+$captureTimeout = if ($Suite -eq 'nr_sequence') {420} else {150}
+while ($timer.Elapsed.TotalSeconds -lt $captureTimeout) {
     $savedPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     $selector = @()
@@ -67,7 +68,10 @@ while ($timer.Elapsed.TotalSeconds -lt 150) {
         try {$report = ($text -join "`n") | ConvertFrom-Json} catch {Start-Sleep -Milliseconds 500; continue}
         $progress = "$($report.status) $($report.current_case)"
         if ($progress -ne $lastProgress) {Write-Output $progress; $lastProgress=$progress}
-        if ($report.status -ne 'RUNNING') {$complete=$true; break}
+        if ($report.status -ne 'RUNNING') {
+            if ($report.status -eq 'PASS' -and $Suite -in @('wb','nr_sequence') -and -not $report.camera_session_closed) {Start-Sleep -Milliseconds 200; continue}
+            $complete=$true; break
+        }
     }
     Start-Sleep -Milliseconds 500
 }

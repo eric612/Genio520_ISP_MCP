@@ -19,7 +19,7 @@ async function exercise(transport) {
   const client = new Client({ name: 'genio-source-flow-test', version: '1.0.0' });
   try {
     await client.connect(transport);
-    assert.equal((await client.listTools()).tools.length, 12);
+    assert.equal((await client.listTools()).tools.length, 13);
     async function call(name, args) {
       const result = await client.callTool({ name, arguments: args });
       assert.equal(result.isError, undefined, result.content[0]?.text);

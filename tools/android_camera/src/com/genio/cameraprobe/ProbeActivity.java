@@ -61,6 +61,11 @@ public class ProbeActivity extends Activity {
     private JSONObject caseReport;
     private JSONArray caseFrames;
     private static final int SAMPLES = 3;
+    private static final int SEQUENCE_SAMPLES = 64;
+    private final List<byte[]> sequencePixels = new ArrayList<>();
+
+    private boolean fixedColorSuite() { return suite.equals("wb") || suite.equals("nr_sequence"); }
+    private boolean nrSuite() { return suite.equals("nr") || suite.equals("nr_sequence"); }
 
     private static final class Case {
         final String name;
@@ -103,6 +108,10 @@ public class ProbeActivity extends Activity {
         suite = getIntent().getStringExtra("suite");
         if (cameraId == null) cameraId="0";
         if (suite == null) suite="controls";
+        if(suite.equals("nr_sequence")) {
+            WindowManager.LayoutParams window=getWindow().getAttributes(); window.screenBrightness=0;
+            getWindow().setAttributes(window); statusView.setBackgroundColor(0xff000000); statusView.setTextColor(0xff202020);
+        }
         if (runId == null || !runId.matches("[A-Za-z0-9_-]{1,64}")) {
             statusView.setText("Invalid run_id"); return;
         }
@@ -170,7 +179,7 @@ public class ProbeActivity extends Activity {
             report.put("width",width); report.put("height",height);
             report.put("output_format","NV21: packed Y followed by interleaved VU, 8-bit");
             report.put("capabilities",capabilities(sizes));
-            if(!Arrays.asList("capture","controls","inventory","raw","nr","wb","jpeg").contains(suite)) throw new IOException("Unknown suite: "+suite);
+            if(!Arrays.asList("capture","controls","inventory","raw","nr","wb","jpeg","nr_sequence").contains(suite)) throw new IOException("Unknown suite: "+suite);
             if(suite.equals("inventory") || suite.equals("raw") || suite.equals("jpeg")) report.put("inventory",inventory(config));
             if(!suite.equals("inventory") && !suite.equals("raw") && !suite.equals("jpeg")) createCases();
             reader=ImageReader.newInstance(width,height,ImageFormat.YUV_420_888,4);
@@ -204,7 +213,7 @@ public class ProbeActivity extends Activity {
                 @Override public void onOpened(CameraDevice device) {
                     camera=device;
                     try {
-                        if(suite.equals("nr")) {
+                        if(nrSuite()) {
                             Object defaultValue=camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).get(nr3dRequestKey);
                             if(!(defaultValue instanceof int[]) || ((int[])defaultValue).length!=1)
                                 throw new IOException("Vendor 3DNR template does not use a single int[] value");
@@ -232,7 +241,7 @@ public class ProbeActivity extends Activity {
                 @Override public void onDisconnected(CameraDevice value) { fail(new IOException("Camera disconnected")); }
                 @Override public void onError(CameraDevice value,int code) { fail(new IOException("Camera error "+code)); }
                 @Override public void onClosed(CameraDevice value) {
-                    if(suite.equals("wb")) try {report.put("camera_session_closed",true); writeReport(report.getString("status"));} catch(Exception ignored) { }
+                    if(fixedColorSuite()) try {report.put("camera_session_closed",true); writeReport(report.getString("status"));} catch(Exception ignored) { }
                 }
             },worker);
             worker.postDelayed(()->{if(!finished && session==null) fail(new IOException("Camera open/configure timeout"));},15000);
@@ -442,31 +451,41 @@ public class ProbeActivity extends Activity {
     private void createCases() throws Exception {
         cases.add(new Case("auto",0,0,CaptureRequest.NOISE_REDUCTION_MODE_FAST,CaptureRequest.TONEMAP_MODE_FAST,false));
         if(suite.equals("capture")) return;
-        if(!suite.equals("controls") && !suite.equals("nr") && !suite.equals("wb")) throw new IOException("Unknown suite: "+suite);
+        if(!suite.equals("controls") && !nrSuite() && !suite.equals("wb")) throw new IOException("Unknown suite: "+suite);
         int[] cap=characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
         if(!contains(cap,CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR)
                 || !contains(cap,CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING)) {
             throw new IOException("Control suite needs MANUAL_SENSOR and MANUAL_POST_PROCESSING");
         }
-        if(suite.equals("wb")) {
+        if(fixedColorSuite()) {
             if(!contains(characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES),0))
                 throw new IOException("WB suite requires AWB OFF");
             report.put("limitations","Bounded WB control probes, fixed baseline CCM/exposure, and A/B/A' readback. No neutral scene assumption, global calibration, persistent settings, or image-quality claim. Session closes on success/failure.");
             report.put("restore_status","PENDING");
-            return;
+            if(suite.equals("wb")) return;
         }
         if(!contains(characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES),0)
                 || !contains(characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES),1)
-                || !contains(characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES),suite.equals("nr")?1:0)) {
+                || !contains(characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES),nrSuite()?1:0)) {
             throw new IOException("Requested NR/tone modes are not advertised");
         }
-        if(suite.equals("nr")) {
+        if(nrSuite()) {
             Object modes=null;
             for(CameraCharacteristics.Key<?> key:characteristics.getKeys())
                 if(key.getName().equals("com.mediatek.nrfeature.available3dnrmodes")) modes=characteristics.get(key);
             if(!(modes instanceof int[]) || !contains((int[])modes,0) || !contains((int[])modes,1)
                     || nr3dRequestKey==null || nr3dResultKey==null)
                 throw new IOException("NR suite requires advertised vendor 3DNR 0/1 request and result keys");
+            if(suite.equals("nr_sequence")) {
+                if(!contains(characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES),0)
+                    || !contains(characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES),0))
+                    throw new IOException("NR sequence requires advertised EDGE OFF and AF OFF");
+                report.put("limitations","Static matched YUV sequence only: fixed exposure/ISO/WB/CCM, FAST tone, EDGE OFF; other vendor processing may remain. No motion/ghosting, lux, full ISP bypass or sustained performance claim. Readback is distinct from quality assessment.");
+                report.put("sequence_samples_per_manual_case",SEQUENCE_SAMPLES);
+                report.put("sequence_settle_result_count",32);
+                report.put("diagnostic_screen_brightness",0);
+                return;
+            }
             report.put("limitations","NR suite verifies independent standard/vendor control readback on matched frames. Three samples per case do not establish temporal noise reduction, algorithm placement, complete bypass, or image quality.");
             for(int standard:new int[]{0,1}) for(int vendor:new int[]{0,1})
                 cases.add(new Case("nr_"+standard+"_3dnr_"+vendor,20000000L,800,standard,1,false,vendor));
@@ -489,7 +508,7 @@ public class ProbeActivity extends Activity {
             caseIndex++;
             if(caseIndex>=cases.size()) { finishRun(); return; }
             Case c=cases.get(caseIndex);
-            receivedResults=0; collected=0; images.clear(); results.clear();
+            receivedResults=0; collected=0; images.clear(); results.clear(); sequencePixels.clear();
             caseFrames=new JSONArray(); caseReport=new JSONObject();
             caseReport.put("name",c.name); caseReport.put("frames",caseFrames);
             JSONObject requested=new JSONObject();
@@ -510,7 +529,8 @@ public class ProbeActivity extends Activity {
             if(c.exposure>0) {
                 b.set(CaptureRequest.SENSOR_EXPOSURE_TIME,c.exposure);
                 b.set(CaptureRequest.SENSOR_SENSITIVITY,c.iso);
-                b.set(CaptureRequest.SENSOR_FRAME_DURATION,suite.equals("wb")?wbFrameDuration:33333333L);
+                b.set(CaptureRequest.SENSOR_FRAME_DURATION,fixedColorSuite()?wbFrameDuration:33333333L);
+                if(suite.equals("nr_sequence")) requested.put("frame_duration_ns",wbFrameDuration);
             }
             if(c.wbGains!=null) {
                 b.set(CaptureRequest.CONTROL_AWB_MODE,CaptureRequest.CONTROL_AWB_MODE_OFF);
@@ -527,13 +547,17 @@ public class ProbeActivity extends Activity {
                 b.set(key,new int[]{c.nr3d});
             }
             if(contains(characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES),0)) b.set(CaptureRequest.EDGE_MODE,0);
+            if(suite.equals("nr_sequence")) {
+                b.set(CaptureRequest.CONTROL_AF_MODE,0); b.set(CaptureRequest.FLASH_MODE,0);
+                requested.put("edge_mode",0); requested.put("af_mode",0); requested.put("flash_mode",0);
+            }
             b.set(CaptureRequest.TONEMAP_MODE,c.tone);
             if(c.tone==0) { float[] curve=curve(c.lifted); b.set(CaptureRequest.TONEMAP_CURVE,new TonemapCurve(curve,curve,curve)); }
-            if(suite.equals("wb")) caseReport.put("full_request",requestMetadata(b.build()));
+            if(fixedColorSuite()) caseReport.put("full_request",requestMetadata(b.build()));
             session.setRepeatingRequest(b.build(),callback,worker);
             report.put("current_case",c.name); writeReport("RUNNING");
             int generation=caseIndex;
-            worker.postDelayed(()->{if(!finished && caseIndex==generation) fail(new IOException("No matched YUV/result frames for "+c.name));},15000);
+            worker.postDelayed(()->{if(!finished && caseIndex==generation) fail(new IOException("Insufficient matched YUV/result frames for "+c.name));},suite.equals("nr_sequence")?90000:15000);
         } catch(Exception e) { fail(e); }
     }
     private static float[] curve(boolean lifted) { return lifted?new float[]{0,0,.25f,.50f,.50f,.75f,1,1}:new float[]{0,0,1,1}; }
@@ -543,8 +567,8 @@ public class ProbeActivity extends Activity {
             String name=String.valueOf(request.getTag());
             if(!cases.get(caseIndex).name.equals(name)) return;
             receivedResults++;
-            if(receivedResults<(caseIndex==0?20:10)) return;
-            if(suite.equals("wb") && cases.get(caseIndex).exposure==0
+            if(receivedResults<(suite.equals("nr_sequence")?32:caseIndex==0?20:10)) return;
+            if(fixedColorSuite() && cases.get(caseIndex).exposure==0
                     && (!Integer.valueOf(2).equals(r.get(CaptureResult.CONTROL_AWB_STATE))
                     || !Integer.valueOf(2).equals(r.get(CaptureResult.CONTROL_AE_STATE)))) return;
             Long ts=r.get(CaptureResult.SENSOR_TIMESTAMP);
@@ -559,7 +583,7 @@ public class ProbeActivity extends Activity {
                 put(m,"ae_state",r.get(CaptureResult.CONTROL_AE_STATE));
                 put(m,"awb_state",r.get(CaptureResult.CONTROL_AWB_STATE));
                 put(m,"awb_lock",r.get(CaptureResult.CONTROL_AWB_LOCK));
-                if(suite.equals("wb")) {
+                if(fixedColorSuite()) {
                     put(m,"awb_mode",r.get(CaptureResult.CONTROL_AWB_MODE));
                     put(m,"color_correction_mode",r.get(CaptureResult.COLOR_CORRECTION_MODE));
                     m.put("wb_gains",value(r.get(CaptureResult.COLOR_CORRECTION_GAINS)));
@@ -568,6 +592,10 @@ public class ProbeActivity extends Activity {
                 put(m,"nr_mode",r.get(CaptureResult.NOISE_REDUCTION_MODE));
                 if(nr3dResultKey!=null) m.put("vendor_3dnr_mode",value(r.get(nr3dResultKey)));
                 put(m,"edge_mode",r.get(CaptureResult.EDGE_MODE));
+                if(suite.equals("nr_sequence")) {
+                    put(m,"af_mode",r.get(CaptureResult.CONTROL_AF_MODE));
+                    put(m,"flash_mode",r.get(CaptureResult.FLASH_MODE));
+                }
                 put(m,"tone_mode",r.get(CaptureResult.TONEMAP_MODE));
                 TonemapCurve tc=r.get(CaptureResult.TONEMAP_CURVE);
                 if(tc!=null) for(int channel=0;channel<3;channel++) {
@@ -592,7 +620,7 @@ public class ProbeActivity extends Activity {
                 throw new IOException("Unexpected image dimensions/crop");
             byte[] data=new byte[width*height*3/2];
             JSONArray strides=new JSONArray();
-            if(suite.equals("wb") && Build.VERSION.SDK_INT>=33) report.put("yuv_dataspace",image.getDataSpace());
+            if(fixedColorSuite() && Build.VERSION.SDK_INT>=33) report.put("yuv_dataspace",image.getDataSpace());
             Image.Plane[] planes=image.getPlanes();
             for(int p=0;p<3;p++) {
                 Image.Plane plane=planes[p]; ByteBuffer buffer=plane.getBuffer();
@@ -621,7 +649,11 @@ public class ProbeActivity extends Activity {
             entry.put("image_timestamp_ns",ts);
             entry.put("luma_mean",f.mean); entry.put("luma_stddev",f.stddev);
             entry.put("source_plane_strides",f.strides);
-            if(collected==0 || suite.equals("wb")) {
+            if(suite.equals("nr_sequence") && cases.get(caseIndex).exposure>0) {
+                String stem=s.name+(collected==0?"":"-"+collected);
+                sequencePixels.add(f.nv21); entry.put("nv21",stem+".nv21");
+                if(collected==0) entry.put("jpeg",stem+".jpg");
+            } else if(collected==0 || suite.equals("wb")) {
                 String stem=s.name+(collected==0?"":"-"+collected);
                 try(FileOutputStream output=new FileOutputStream(new File(directory,stem+".nv21"))) { output.write(f.nv21); }
                 try(FileOutputStream output=new FileOutputStream(new File(directory,stem+".jpg"))) {
@@ -631,9 +663,22 @@ public class ProbeActivity extends Activity {
                 entry.put("nv21",stem+".nv21"); entry.put("jpeg",stem+".jpg");
             }
             caseFrames.put(entry); collected++;
-            if(collected>=SAMPLES) {
+            if(collected>=(suite.equals("nr_sequence") && cases.get(caseIndex).exposure>0?SEQUENCE_SAMPLES:SAMPLES)) {
+                if(!sequencePixels.isEmpty()) {
+                    // Buffer one case, then write it between cases; JPEG/file IO does not stall individual samples.
+                    for(int k=0;k<sequencePixels.size();k++) {
+                        JSONObject saved=caseFrames.getJSONObject(k); byte[] pixels=sequencePixels.get(k);
+                        try(FileOutputStream output=new FileOutputStream(new File(directory,saved.getString("nv21")))) { output.write(pixels); }
+                        if(saved.has("jpeg")) try(FileOutputStream output=new FileOutputStream(new File(directory,saved.getString("jpeg")))) {
+                            if(!new YuvImage(pixels,ImageFormat.NV21,width,height,null).compressToJpeg(new Rect(0,0,width,height),90,output))
+                                throw new IOException("Sequence JPEG conversion failed");
+                        }
+                    }
+                    sequencePixels.clear();
+                }
                 completed.put(caseReport);
                 if(suite.equals("wb") && caseIndex==0) appendWbCases(entry);
+                if(suite.equals("nr_sequence") && caseIndex==0) appendNrSequenceCases(entry);
                 nextCase(); return;
             }
         }
@@ -670,6 +715,32 @@ public class ProbeActivity extends Activity {
     private void addWbCase(String name,long exposure,int iso,float r,float ge,float go,float b) {
         Case c=new Case(name,exposure,iso,1,1,false); c.wbGains=new RggbChannelVector(r,ge,go,b); cases.add(c);
     }
+    private void appendNrSequenceCases(JSONObject baseline) throws Exception {
+        JSONArray gains=baseline.getJSONArray("wb_gains"),ccm=baseline.getJSONArray("ccm");
+        if(gains.length()!=4 || ccm.length()!=9) throw new IOException("Incomplete lowlight WB/CCM baseline");
+        float[] g=new float[4]; for(int i=0;i<4;i++) {
+            g[i]=(float)gains.getDouble(i); if(!Float.isFinite(g[i]) || g[i]<1 || g[i]>3) throw new IOException("Lowlight baseline WB outside guaranteed [1,3] range");
+        }
+        android.util.Rational[] matrix=new android.util.Rational[9];
+        for(int i=0;i<9;i++) {JSONArray q=ccm.getJSONArray(i);matrix[i]=new android.util.Rational(q.getInt(0),q.getInt(1));}
+        wbTransform=new ColorSpaceTransform(matrix);
+        long exposure=baseline.getLong("exposure_time_ns");int iso=baseline.getInt("iso");
+        wbFrameDuration=Math.max(exposure,baseline.getLong("frame_duration_ns"));
+        if(exposure<1 || wbFrameDuration>500000000L) throw new IOException("Auto frame duration exceeds bounded 500ms sequence budget");
+        report.put("sequence_baseline",baseline);
+        for(int standard:new int[]{0,1}) for(int vendor:new int[]{0,1}) {
+            Case c=new Case("nr_"+standard+"_3dnr_"+vendor,exposure,iso,standard,1,false,vendor);
+            c.wbGains=new RggbChannelVector(g[0],g[1],g[2],g[3]);cases.add(c);
+        }
+        Case returned=new Case("baseline_return",exposure,iso,0,1,false,0);
+        returned.wbGains=new RggbChannelVector(g[0],g[1],g[2],g[3]);cases.add(returned);
+        int originalVendor=baseline.getJSONArray("vendor_3dnr_mode").getInt(0);
+        if(originalVendor!=0 && originalVendor!=1) throw new IOException("Unexpected auto vendor NR baseline");
+        cases.add(new Case("auto_return",0,0,1,1,false,originalVendor));
+        JSONArray plan=new JSONArray();
+        for(Case c:cases) plan.put(new JSONObject().put("name",c.name).put("nr_mode",c.nr).put("vendor_3dnr_mode",c.nr3d));
+        report.put("sequence_plan",plan);writeReport("RUNNING");
+    }
     private void finishRun() throws Exception {
         boolean controls=true;
         for(int i=0;i<completed.length();i++) {
@@ -682,6 +753,10 @@ public class ProbeActivity extends Activity {
                 if(request.has("vendor_3dnr_mode")) {
                     JSONArray actual=f.optJSONArray("vendor_3dnr_mode");
                     matches &= actual!=null && actual.length()==1 && actual.optInt(0,-1)==request.getInt("vendor_3dnr_mode");
+                }
+                if(suite.equals("nr_sequence")) {
+                    matches &= f.optInt("edge_mode",-1)==0 && f.optInt("af_mode",-1)==0 && f.optInt("flash_mode",-1)==0;
+                    if(request.has("frame_duration_ns")) matches &= Math.abs(f.optLong("frame_duration_ns",-1)-request.getLong("frame_duration_ns"))<=Math.max(2000000L,request.getLong("frame_duration_ns")/20);
                 }
                 if(request.has("wb_gains")) {
                     boolean wb=f.optInt("awb_mode",-1)==0 && f.optInt("color_correction_mode",-1)==0;
@@ -716,7 +791,7 @@ public class ProbeActivity extends Activity {
             controls &= matches;
         }
         report.put("controls_readback_match",controls);
-        if(suite.equals("wb")) {
+        if(fixedColorSuite()) {
             JSONObject returned=completed.getJSONObject(completed.length()-1);
             boolean restored=returned.getString("name").equals("auto_return") && returned.getBoolean("requested_controls_readback_match");
             for(int k=0;k<returned.getJSONArray("frames").length();k++) {
@@ -776,7 +851,7 @@ public class ProbeActivity extends Activity {
         if(session!=null) { session.close(); session=null; }
         if(camera!=null) { camera.close(); camera=null; }
         if(reader!=null) { reader.close(); reader=null; }
-        if(suite!=null && suite.equals("wb")) try {report.put("camera_session_close_requested",true); writeReport(report.getString("status"));} catch(Exception ignored) { }
+        if(suite!=null && fixedColorSuite()) try {report.put("camera_session_close_requested",true); writeReport(report.getString("status"));} catch(Exception ignored) { }
     }
     @Override public void onDestroy() {
         if(!finished && directory!=null) fail(new IOException("Activity destroyed before completion"));

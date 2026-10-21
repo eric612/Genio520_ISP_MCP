@@ -7,7 +7,7 @@ import { GenioBackend } from './backend.mjs';
 import { configuration } from './config.mjs';
 
 export function createServer(backend) {
-const server = new McpServer({ name: 'genio-dev', version: '0.3.0' });
+const server = new McpServer({ name: 'genio-dev', version: '0.4.0' });
 function tool(name, description, schema, action, annotations = {}) {
   server.registerTool(name, { description, inputSchema: schema, annotations }, async args => {
     try {
@@ -20,8 +20,8 @@ function tool(name, description, schema, action, annotations = {}) {
 tool('get_target_info', 'Read Genio Android/ABI/build and ADB status. No system changes.', {}, () => backend.targetInfo(), { readOnlyHint: true });
 tool('get_camera_capabilities', 'Read HAL-advertised camera metadata. Availability is distinct from verified control effects.', {}, () => backend.cameraCapabilities(), { readOnlyHint: true });
 tool('build_camera_probe', 'Build the diagnostic Camera2 APK using the existing local Android SDK/JDK. Returns source and APK hashes.', {}, () => backend.buildCamera());
-tool('run_camera_validation', 'Deploy a built diagnostic APK: capture, controls, inventory, raw, jpeg, nr or wb suites. WB probes fixed-exposure gains/CCM and returns through baseline/AUTO. Closes the built-in camera app, wakes the board, grants CAMERA permission, and returns a job ID.', {
-  suite: z.enum(['capture', 'controls', 'inventory', 'raw', 'nr', 'wb', 'jpeg']).default('controls'),
+tool('run_camera_validation', 'Deploy a built diagnostic APK: capture, controls, inventory, raw, jpeg, nr, wb or nr_sequence. NR sequence freezes current AUTO exposure/ISO/WB/CCM and saves 64 matched YUV samples per manual case across standard NR/vendor 3DNR 0/1, with baseline return and AUTO restoration. Static quality only; no motion test. Closes built-in camera app, wakes board, grants CAMERA permission; returns job ID.', {
+  suite: z.enum(['capture', 'controls', 'inventory', 'raw', 'nr', 'wb', 'jpeg', 'nr_sequence']).default('controls'),
   camera_id: z.string().regex(/^\d+$/).default('0'),
   wb_candidates: z.array(z.array(z.number().min(1).max(4)).length(4)).min(1).max(12).optional().describe('WB-only R/Ge/Go/B probe vectors. Values above 3 are device-specific; readback must verify acceptance. Always returns through baseline and AUTO.'),
   still_exposure_ns: z.number().int().min(1).max(400000000).optional().describe('RAW/JPEG still only: fixed exposure, with ISO scaled from auto baseline and clamped to advertised range. Device reports actual values.'),
@@ -35,6 +35,10 @@ tool('evaluate_wb', 'Measure a completed WB run on the same ROI, compare with fi
   roi: z.array(z.number().min(0).max(1)).length(4).describe('Normalized left, top, right, bottom in captured YUV coordinates'),
   neutral_reference_confirmed: z.boolean().default(false),
 }, args => backend.evaluateWb(args.run_id, args.roi, args.neutral_reference_confirmed), { destructiveHint: false });
+tool('evaluate_nr', 'Evaluate a completed nr_sequence run on a fixed static ROI: temporal Y noise, drift, clipping, baseline return and missing frames. Saves a local comparison; does not alter the camera or select/install a profile. Static scene must be checked by a person; no lux, motion/ghosting or sensor-noise claim.', {
+  run_id: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+  roi: z.array(z.number().min(0).max(1)).length(4).describe('Normalized left,top,right,bottom in the fixed captured scene'),
+}, args => backend.evaluateNr(args.run_id, args.roi), { destructiveHint: false });
 tool('commit_candidate', 'Commit exactly the listed individual Genio source files. Never operates on IMG_ENHANCE or TTC, never pushes, and refuses unrelated staged files.', {
   files: z.array(z.string()).min(1).max(80), message: z.string().min(1).max(2000),
 }, args => {

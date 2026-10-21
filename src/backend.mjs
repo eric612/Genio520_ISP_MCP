@@ -92,7 +92,7 @@ export class GenioBackend {
     } finally { this.busy = false; }
   }
   async startValidation({ suite = 'controls', cameraId = '0', wbCandidates, stillExposureNs } = {}) {
-    if (!['capture', 'controls', 'inventory', 'raw', 'nr', 'wb', 'jpeg'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
+    if (!['capture', 'controls', 'inventory', 'raw', 'nr', 'wb', 'jpeg', 'nr_sequence'].includes(suite) || !/^\d+$/.test(cameraId)) throw new Error('Invalid suite/camera');
     if (wbCandidates !== undefined && (suite !== 'wb' || !Array.isArray(wbCandidates) || wbCandidates.length < 1 || wbCandidates.length > 12
         || wbCandidates.some(g => !Array.isArray(g) || g.length !== 4 || g.some(v => !Number.isFinite(v) || v < 1 || v > 4))))
       throw new Error('WB candidates require wb suite and 1..12 R/Ge/Go/B vectors within [1,4]; device readback determines acceptance');
@@ -167,6 +167,16 @@ export class GenioBackend {
     const analysis = await readJson(path.join(directory, 'tuning', 'analysis.json'));
     return { analysis, comparison_html: path.join(directory, 'tuning', 'comparison.html'),
       candidate_profile: analysis.selected ? await readJson(path.join(directory, 'tuning', 'candidate-profile.json')) : null };
+  }
+  async evaluateNr(id, roi) {
+    validateId(id);
+    if (this.busy) throw new Error('Wait for capture completion before evaluating NR');
+    if (!Array.isArray(roi) || roi.length !== 4 || roi.some(v => !Number.isFinite(v) || v < 0 || v > 1)
+        || roi[0] >= roi[2] || roi[1] >= roi[3]) throw new Error('Invalid normalized ROI');
+    const directory = path.join(this.root, 'outputs', 'camera-runs', id);
+    await this.command(process.execPath, [path.join(packageRoot, 'tools', 'lowlight', 'analyze.mjs'), directory, `--roi=${roi.join(',')}`], 120000);
+    return { analysis: await readJson(path.join(directory, 'lowlight', 'analysis.json')),
+      comparison_html: path.join(directory, 'lowlight', 'comparison.html') };
   }
   async getReport(id, full = false) {
     validateId(id);

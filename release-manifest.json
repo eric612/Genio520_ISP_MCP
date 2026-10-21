@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "src/backend.mjs",
-      "sha256": "4917fdfe2d2ba397bd864520ce22fa78b5ca8f3e046e1899d1c2b4c450a2c899"
+      "sha256": "ea055a738e6e7d906641bf51862f596b37e2605c64e816cb06307f1aab92fb73"
     },
     {
       "path": "src/config.mjs",
@@ -14,7 +14,7 @@
     },
     {
       "path": "src/server.mjs",
-      "sha256": "5a15c137fcecfc7428ac53a34e6d7906dcb63264a1db93d285725f2558b992b7"
+      "sha256": "076f1596040031fda14a1c61e041fa4a5d37efe2caec5fea409e078111e29cd6"
     },
     {
       "path": "src/transport.mjs",
@@ -37,8 +37,12 @@
       "sha256": "dc06dad7dcb377b792565833cc70e4b26547aaf030154af2fc5aec42b1f02581"
     },
     {
+      "path": "tests/lowlight.test.mjs",
+      "sha256": "253529b63d807d926889319df3e7c10b4671148b77f8436a8989ad5eaee1e6de"
+    },
+    {
       "path": "tests/mcp.test.mjs",
-      "sha256": "6485e58ab75143b008f52f554180713c9daf7a279945eae1e989151a02dfaade"
+      "sha256": "976752eeb078a304df6fa240b2245f51e1ed19fd0b8b24bd10032ce89fb243d2"
     },
     {
       "path": "tests/temp.mjs",
@@ -65,12 +69,16 @@
       "sha256": "6c87b3f60d98f1a287e27f5099629a4f5dc9acff642b45012ebdcf7a2f233d69"
     },
     {
+      "path": "docs/public/lowlight.md",
+      "sha256": "c924e502baf2026a00dcdba1e283656be5c55cff7fe8a6aa9574267bb42e450f"
+    },
+    {
       "path": "docs/public/simple-tuning.md",
       "sha256": "07ef678a74afe849c43909d1fa485c546fff8e93808a1c0eceac6b052b44995b"
     },
     {
       "path": "docs/public/status.md",
-      "sha256": "23bbd82cc27690336dbdab5355a8d38dd8bb0f92c16d8e6102c8f0e1dd2bade7"
+      "sha256": "408415df1df80e24fab753c61e0542cedfdc82934b15d5a3bc56299ada7dec61"
     },
     {
       "path": "tools/android_camera/AndroidManifest.xml",
@@ -82,11 +90,11 @@
     },
     {
       "path": "tools/android_camera/run.ps1",
-      "sha256": "37c9aca5a98d4722712b5045248791600b98416f1a61eb1bfdc99fd2cc0d389b"
+      "sha256": "ef02b4eb3824154154f7a86e2268f14564ec8d6d291f27c0a40deef7d13ef157"
     },
     {
       "path": "tools/android_camera/src/com/genio/cameraprobe/ProbeActivity.java",
-      "sha256": "d2b4f391feee7e083a8aece287ffbd84db18fee45f1b7dd67fc2c411c42e81e3"
+      "sha256": "38a0d8b060cd671916e4b69acf681f7ee307630cbe0833e28e22463a9ff60b42"
     },
     {
       "path": "tools/android_probe/probe.c",
@@ -129,6 +137,26 @@
       "sha256": "e57c5cc3c698edd1a87c43deaf3e33574b4c4bfd5e71d98df324b0ce6ebf76a2"
     },
     {
+      "path": "tools/lowlight/analyze.mjs",
+      "sha256": "b7beb85ce7ab22df18be9c3511114130e7e8da1f327acb42b2afa2f025938216"
+    },
+    {
+      "path": "tools/lowlight/metrics.mjs",
+      "sha256": "b100f5cb24ca330200a0b7b0507d74c1093552a09272cf79de2e4e519dac7631"
+    },
+    {
+      "path": "tools/lowlight/run.mjs",
+      "sha256": "09adf4ca4fae5da597abc51d78f38ce081490cff642987a47bea157bae4609d2"
+    },
+    {
+      "path": "tools/lowlight/run.ps1",
+      "sha256": "e0bfd5c4ce762bd488f2672c95526de77a3d37e506e714675efdcdd65c62e8fe"
+    },
+    {
+      "path": "tools/lowlight/schedule.ps1",
+      "sha256": "a076dcf2bec67384a6799abcf795efb197a1c9b9cef6274f082286100d7b8439"
+    },
+    {
       "path": "tools/mcp_smoke.mjs",
       "sha256": "faff4f1601207641dd442c4a6319076eae89403776de94fc74ebd10c35bb4fb5"
     },
@@ -138,7 +166,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "801f51f6a0ef85f2120e5376026675160616eb01269ca50b9d6ea4efb4245a90"
+      "sha256": "f62fe1577bee841be1e1e8fc9e41337f176da9c2ec6c2e6ec4b50c42a4a031a3"
     },
     {
       "path": "LICENSE",
@@ -150,11 +178,11 @@
     },
     {
       "path": "package.json",
-      "sha256": "a657994f7051e831753b2a66b7fac86d716a9f9ecf9833916cab679977f2b6ce"
+      "sha256": "1ede8c6baaf40380d93b55d7518e34fcf3e846db0718f86f3c3633ed5de86d2d"
     },
     {
       "path": "package-lock.json",
-      "sha256": "82f9b2a2f722a453426ec7f04a7d3ee4f9876c9a96501cef7f47dda8ca38770b"
+      "sha256": "b3a6390630a1a291b73a959086c98af67959e3bf0ecc3eab18850b205af490f4"
     },
     {
       "path": ".gitignore",
