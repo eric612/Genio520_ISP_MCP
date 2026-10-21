@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "genio_dev": {
+      "command": "node",
+      "args": ["D:/dev/Genio520_ISP_MCP/bin/genio-dev-mcp.mjs", "--workspace", "D:/dev/Genio520_ISP_MCP", "--write"],
+      "env": {
+        "GENIO_ANDROID_SDK": "D:/Android/Sdk",
+        "GENIO_JDK": "C:/Program Files/Android/Android Studio/jbr"
+      }
+    }
+  }
+}

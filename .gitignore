@@ -1,0 +1,11 @@
+outputs/
+board-logs/
+node_modules/
+.codex/
+isp-review/
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.pem

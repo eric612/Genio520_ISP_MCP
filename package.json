@@ -1,0 +1,39 @@
+{
+  "name": "genio-dev-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eric612/Genio520_ISP_MCP.git"
+  },
+  "bin": {
+    "genio-dev-mcp": "bin/genio-dev-mcp.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "tools/android_camera/",
+    "tools/android_probe/",
+    "tools/mcp_smoke.mjs",
+    "examples/",
+    "docs/public/",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "description": "PC MCP bridge for Android camera and native validation on Genio 520",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "smoke": "node tools/mcp_smoke.mjs",
+    "doctor": "node bin/genio-dev-mcp.mjs doctor"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "zod": "3.25.76"
+  }
+}

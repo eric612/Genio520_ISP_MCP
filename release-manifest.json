@@ -1,0 +1,120 @@
+{
+  "files": [
+    {
+      "path": "src/backend.mjs",
+      "sha256": "83ea8dd0b59dc4861fb09e83cecf731a466fe3c3a8b6adde9d1133fd5f45e5ff"
+    },
+    {
+      "path": "src/config.mjs",
+      "sha256": "a68ef8b7512d5de7c58afcafd805e62fe510572a975396090158c77241f5ce59"
+    },
+    {
+      "path": "src/doctor.mjs",
+      "sha256": "a887a5f928237f9809c52f359f7482403fb618a528efdd6cef75702bc8f20967"
+    },
+    {
+      "path": "src/server.mjs",
+      "sha256": "00b2f3e5e9f10eb8b8658438a863a7bd13c07e9a192ff9296eaaf18a5f8b5dd7"
+    },
+    {
+      "path": "src/transport.mjs",
+      "sha256": "e5bd80374c744774ccbc78beb9415404147e32c8385bd829b5ba9d7b0ad8175d"
+    },
+    {
+      "path": "src/workspace.mjs",
+      "sha256": "58f4a1fb0c0e8bd8688fa34f38d3b8e06cb0173d97fae3256fcbf124a634248e"
+    },
+    {
+      "path": "bin/genio-dev-mcp.mjs",
+      "sha256": "1b81bfb23378e462db41d337d7d553c854ce206770b4263ee9a9f08eb1282117"
+    },
+    {
+      "path": "tests/backend.test.mjs",
+      "sha256": "526a2ab20ab9637d75fee43620077ef478c74f0d93f3d1f0f60c4b48a4f151d9"
+    },
+    {
+      "path": "tests/mcp.test.mjs",
+      "sha256": "100d138590d137bf915839d02b0dfe09d37a1c657eaf7c9b6d0688a5af6072fa"
+    },
+    {
+      "path": "tests/temp.mjs",
+      "sha256": "08e979c6abd6d07b95cd84719c0f9e95611d942d3224852566d2bb84093135c7"
+    },
+    {
+      "path": "tests/workspace.test.mjs",
+      "sha256": "0106843ce11df2e221df144b6c4668734a5664b1d29b06d4e73f80564a503afa"
+    },
+    {
+      "path": "examples/mcp.local.json",
+      "sha256": "0b2371913c019466901e2a3e20a0ec68103652f961a962b8b2a642e4279a548a"
+    },
+    {
+      "path": "docs/public/browser-connection.md",
+      "sha256": "6a157e1540623db590b857604dec654df24f9a1587bc1dc6e081bd73c2f03663"
+    },
+    {
+      "path": "docs/public/status.md",
+      "sha256": "81dddc5b4d51fbe931e09f1bbf90e3e0e9cd97773bfe70f78f4166cc2e7cc7a2"
+    },
+    {
+      "path": "tools/android_camera/AndroidManifest.xml",
+      "sha256": "506f514de77fc88a40fc7d41a70e086b7fa1a330c50d58ac4ed4a609fdbbbca1"
+    },
+    {
+      "path": "tools/android_camera/build.ps1",
+      "sha256": "2a34739fdaff3436bfcf8b9b3349a12148bc69efeec0edd8df35bb895eb99dab"
+    },
+    {
+      "path": "tools/android_camera/run.ps1",
+      "sha256": "a1eaceea30ea82bd6c75cf8b576601e0bfe1f8e031f6bed3a54cd5634544bb60"
+    },
+    {
+      "path": "tools/android_camera/src/com/genio/cameraprobe/ProbeActivity.java",
+      "sha256": "b4984eedcdf909419571662b2939fa27cea1ddb13ce51d7232c7ee646f4574d2"
+    },
+    {
+      "path": "tools/android_probe/probe.c",
+      "sha256": "67adb081cae4a5b7516047f3e34fc0ad14dd325faffe0016b87a9fdd3e56d315"
+    },
+    {
+      "path": "tools/android_probe/README.md",
+      "sha256": "96ae3f9084d81c92d028f603b80f7a1866b8b7a5e20d8f963380e978911ec5bf"
+    },
+    {
+      "path": "tools/android_probe/verify.ps1",
+      "sha256": "ddfefaf7ae462bfb8f9dcc37602674c4330118ab051bbf3deea6aebb22298283"
+    },
+    {
+      "path": "tools/mcp_smoke.mjs",
+      "sha256": "faff4f1601207641dd442c4a6319076eae89403776de94fc74ebd10c35bb4fb5"
+    },
+    {
+      "path": "tools/third_party_notices.mjs",
+      "sha256": "e25411018fb044b762616533c4c0a5af24b23bd94971a39ecf17f7bd0298f5aa"
+    },
+    {
+      "path": "README.md",
+      "sha256": "20ee6566957be90208c6e88c958030b23b1ff0187e054dd622a958e63265e071"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "3e6b71f45b817ec9b18a16bc4e3d77d6444eaded68447772ac23a2b72535f97b"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "abd56f2b70883e572a737ceb37f51db720a697a98449adb76622cd804d6de6a2"
+    },
+    {
+      "path": "package.json",
+      "sha256": "e433f0606fb1f8d59f256a93b41d93686d20bb0ba894970bf5e39f3aeabfd709"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "e4a32b3cc2a9a2b903cc4095c7208391ffb836ddf0dcc8cf5b8e9073666173a5"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "a637fe3c677fde58674c6618c6237360b80b5aa37b005d224f1047d444f0b1df"
+    }
+  ]
+}
