@@ -14,7 +14,7 @@
     },
     {
       "path": "src/server.mjs",
-      "sha256": "741380436416dd495ba8b93db353f39d1ae5c79cc2c446c0fb9e1e65e595225c"
+      "sha256": "399537e9d01b4bbaaabc186869df27b1c7ac73febade066f9987e796864232a5"
     },
     {
       "path": "src/transport.mjs",
@@ -66,7 +66,7 @@
     },
     {
       "path": "docs/public/algorithm-replay.md",
-      "sha256": "90ba0804b6a4e9556023bf804857f64f6a73d8ba184dec9d5010424be257b1ba"
+      "sha256": "2ffd08556eaefb0428d2ddf71dfae623e45553e5e0f054325df68a6dede25eb2"
     },
     {
       "path": "docs/public/browser-connection.md",
@@ -78,7 +78,7 @@
     },
     {
       "path": "docs/public/lowlight.md",
-      "sha256": "c924e502baf2026a00dcdba1e283656be5c55cff7fe8a6aa9574267bb42e450f"
+      "sha256": "174c4d07e554f2b4217527d69d748678aa9eb7342ce39a0b1498fbcb67a4a795"
     },
     {
       "path": "docs/public/simple-tuning.md",
@@ -86,7 +86,7 @@
     },
     {
       "path": "docs/public/status.md",
-      "sha256": "8c048c344018f5a1efef17768a266c6790644eced3ac7423acdaae0503332925"
+      "sha256": "d94758679a10acaa120e15c9b3bc998e11accc50f1efcba685da1fbee194a4a6"
     },
     {
       "path": "tools/android_camera/AndroidManifest.xml",
@@ -158,11 +158,11 @@
     },
     {
       "path": "tools/lowlight/run.ps1",
-      "sha256": "e0bfd5c4ce762bd488f2672c95526de77a3d37e506e714675efdcdd65c62e8fe"
+      "sha256": "469364d6d73379e4599f5d8a95e111c090ee2dc8eedbb75aa647a1fbc2cc1d6a"
     },
     {
       "path": "tools/lowlight/schedule.ps1",
-      "sha256": "a076dcf2bec67384a6799abcf795efb197a1c9b9cef6274f082286100d7b8439"
+      "sha256": "00d63977e559323a34ea0c8c61508d15bc77d857ccd348d5b541d08ff7c9f52e"
     },
     {
       "path": "tools/algorithm_replay/nv21.py",
@@ -202,11 +202,11 @@
     },
     {
       "path": "package.json",
-      "sha256": "dcb26bfead65d73496f47d53e68984e2565e02f70390d8c3c0686e0b3d981303"
+      "sha256": "8ee20e7219613a9ec2e69e6d27dd2d77cb132eb2258c8dc4b899d2ed64bf8853"
     },
     {
       "path": "package-lock.json",
-      "sha256": "210d9c8e1f21eb0136726f315809d36fc9c6391f036f54f73843f1b905e2616e"
+      "sha256": "ac835a9bde65cff15de9e156ce39f04a253f40ea4b4713c5a0ec83ad287a2be5"
     },
     {
       "path": ".gitignore",

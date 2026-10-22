@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory=$true)][string]$DevelopmentKeystore,
     [ValidatePattern('^[A-Za-z0-9_-]{1,64}$')][string]$JobId = ('lowlight-' + [guid]::NewGuid().ToString('N').Substring(0,12)),
     [string]$ScheduledAt,
+    [string]$Roi = '.65,.5,.72,.58',
     [switch]$Preflight
 )
 $ErrorActionPreference='Stop'
@@ -16,7 +17,7 @@ $env:GENIO_SERIAL=$Serial
 $env:GENIO_ANDROID_SDK=$SdkRoot
 $env:GENIO_JDK=$JdkRoot
 $env:GENIO_CAMERA_KEYSTORE=$DevelopmentKeystore
-$arguments=@((Join-Path $PSScriptRoot 'run.mjs'),"--job-id=$JobId")
+$arguments=@((Join-Path $PSScriptRoot 'run.mjs'),"--job-id=$JobId","--roi=$Roi")
 if($ScheduledAt){$arguments+="--scheduled-at=$ScheduledAt"}
 if($Preflight){$arguments+='--preflight'}
 & $Node @arguments *> (Join-Path $logDirectory "$JobId.log")

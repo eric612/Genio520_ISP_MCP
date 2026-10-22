@@ -1,6 +1,6 @@
 # Static lowlight comparison
 
-Version 0.4.0 adds `nr_sequence` and `evaluate_nr` (13 MCP tools total). This extension has offline tests and an SDK/JDK-built, signed diagnostic APK; its new on-board sequence and lowlight quality are pending hardware validation. Earlier three-frame NR control tests do not validate this extension.
+Version 0.4.0 adds `nr_sequence` and `evaluate_nr` (13 MCP tools total). A lit-office hardware run has now captured all 326 matched samples with verified controls, consecutive manual-case frames and AUTO/session restoration. Its quality remains diagnostic because baseline noise was not repeatable; lowlight quality and motion behavior are pending. Earlier three-frame NR control tests do not validate this extension.
 
 ## Capture and evaluate
 
@@ -23,9 +23,10 @@ Use existing local Node 22, Android SDK/JDK and development keystore paths. A mo
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/lowlight/schedule.ps1 `
   -At '2026-10-22T21:00:00+08:00' `
   -Node C:/tools/node/node.exe -Serial YOUR_DEVICE_SERIAL `
-  -DevelopmentKeystore C:/private/development.keystore
+  -DevelopmentKeystore C:/private/development.keystore `
+  -Roi '.45,.65,.60,.80'
 ```
 
-Pass `-SdkRoot` and `-JdkRoot` if needed. The date must be in the future; this is an example, not an enabled schedule shipped with the repository. The task runs as the current logged-in Windows user with limited privileges and a hidden PowerShell launcher. It checks ADB first. Disconnected devices produce `NOT_RUN_DEVICE_UNAVAILABLE`; starts more than 15 minutes late produce `NOT_RUN_OUTSIDE_SCHEDULE_WINDOW`. There is no recurring retry. The task can request wake from sleep, but the PC must remain available with that Windows session and the board connected.
+Pass `-SdkRoot` and `-JdkRoot` if needed. Version 0.4.2 forwards `-Roi` through the scheduler and PowerShell launcher and records it in the schedule; choose a static unclipped region from your own preview before capture. Coordinates in this example are scene-specific. The date must be in the future; this is an example, not an enabled schedule shipped with the repository. The task runs as the current logged-in Windows user with limited privileges and a hidden PowerShell launcher. It checks ADB first. Disconnected devices produce `NOT_RUN_DEVICE_UNAVAILABLE`; starts more than 15 minutes late produce `NOT_RUN_OUTSIDE_SCHEDULE_WINDOW`. There is no recurring retry. The task can request wake from sleep, but the PC must remain available with that Windows session and the board connected.
 
 Results/logs/schedule records stay under `outputs/lowlight-jobs`, `outputs/lowlight-launches` and `outputs/lowlight-schedules`. Preserve those logs when diagnosing a failed launch. A successful job points to the run's `lowlight/comparison.html`; source hashes and capture provenance accompany the evidence. Cancel a pending run by removing only its named `Genio-lowlight-<date>-<time>` task from Windows Task Scheduler.
