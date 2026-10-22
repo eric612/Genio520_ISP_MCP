@@ -2,6 +2,8 @@
 
 Version 0.4.0 adds `nr_sequence` and `evaluate_nr` (13 MCP tools total). A lit-office hardware run has now captured all 326 matched samples with verified controls, consecutive manual-case frames and AUTO/session restoration. Its quality remains diagnostic because baseline noise was not repeatable; lowlight quality and motion behavior are pending. Earlier three-frame NR control tests do not validate this extension.
 
+Version 0.4.3 fixes lowlight AUTO sampling: `nr_sequence` accepts AE `FLASH_REQUIRED` as well as `CONVERGED`, while requiring AWB `CONVERGED` and keeping flash OFF. Android defines `FLASH_REQUIRED` as converged exposure that still needs flash for adequate brightness; it must not be mistaken for ongoing AE search. The WB suite and manual-control/quality gates are unchanged. Two subsequent lowlight runs captured all 326 matched samples each, with verified fixed controls, consecutive manual-case sampling and AUTO/session restoration, but remained diagnostic because brightness stability/comparability failed. No NR winner or profile was installed. See [Android 3A states](https://source.android.com/docs/core/camera/camera3_3Amodes).
+
 ## Capture and evaluate
 
 1. Keep the camera and scene still under the lighting to be evaluated.

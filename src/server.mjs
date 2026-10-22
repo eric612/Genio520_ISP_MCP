@@ -7,7 +7,7 @@ import { GenioBackend } from './backend.mjs';
 import { configuration } from './config.mjs';
 
 export function createServer(backend) {
-const server = new McpServer({ name: 'genio-dev', version: '0.4.2' });
+const server = new McpServer({ name: 'genio-dev', version: '0.4.3' });
 function tool(name, description, schema, action, annotations = {}) {
   server.registerTool(name, { description, inputSchema: schema, annotations }, async args => {
     try {

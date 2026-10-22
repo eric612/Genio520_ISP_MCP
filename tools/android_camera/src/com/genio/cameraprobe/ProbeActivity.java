@@ -483,6 +483,7 @@ public class ProbeActivity extends Activity {
                 report.put("limitations","Static matched YUV sequence only: fixed exposure/ISO/WB/CCM, FAST tone, EDGE OFF; other vendor processing may remain. No motion/ghosting, lux, full ISP bypass or sustained performance claim. Readback is distinct from quality assessment.");
                 report.put("sequence_samples_per_manual_case",SEQUENCE_SAMPLES);
                 report.put("sequence_settle_result_count",32);
+                report.put("sequence_auto_ae_policy","CONVERGED or FLASH_REQUIRED with AWB CONVERGED; flash remains OFF; manual controls must match readback");
                 report.put("diagnostic_screen_brightness",0);
                 return;
             }
@@ -569,8 +570,9 @@ public class ProbeActivity extends Activity {
             receivedResults++;
             if(receivedResults<(suite.equals("nr_sequence")?32:caseIndex==0?20:10)) return;
             if(fixedColorSuite() && cases.get(caseIndex).exposure==0
-                    && (!Integer.valueOf(2).equals(r.get(CaptureResult.CONTROL_AWB_STATE))
-                    || !Integer.valueOf(2).equals(r.get(CaptureResult.CONTROL_AE_STATE)))) return;
+                    && (!Integer.valueOf(CaptureResult.CONTROL_AWB_STATE_CONVERGED).equals(r.get(CaptureResult.CONTROL_AWB_STATE))
+                    || !(Integer.valueOf(CaptureResult.CONTROL_AE_STATE_CONVERGED).equals(r.get(CaptureResult.CONTROL_AE_STATE))
+                    || (suite.equals("nr_sequence") && Integer.valueOf(CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED).equals(r.get(CaptureResult.CONTROL_AE_STATE)))))) return;
             Long ts=r.get(CaptureResult.SENSOR_TIMESTAMP);
             if(ts==null) { fail(new IOException("Missing SENSOR_TIMESTAMP")); return; }
             try {
